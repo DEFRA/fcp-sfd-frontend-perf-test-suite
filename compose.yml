@@ -12,9 +12,10 @@ services:
       S3_ENDPOINT: 'http://localstack:4566'
       RESULTS_OUTPUT_S3_PATH: 's3://test-results'
       ENVIRONMENT: local
-      SERVICE_ENDPOINT: localhost
+      SERVICE_ENDPOINT: service
       SERVICE_PORT: 3000
       SERVICE_URL_SCHEME: http
+      TEST_SCENARIO: ${TEST_SCENARIO:-FrontendPerfTest}
     networks:
       - performance-tests
 
@@ -51,8 +52,7 @@ services:
       - performance-tests
 
   service:
-    # replace service-name with the name of your service being performace tested
-    image: defradigital/service-name:${SERVICE_VERSION:-latest}
+    image: defradigital/fcp-sfd-frontend:${SERVICE_VERSION:-latest}
     ports:
       - '3000:3000'
     links:
@@ -68,6 +68,26 @@ services:
       NODE_ENV: development
       REDIS_HOST: redis
       USE_SINGLE_INSTANCE_CACHE: true
+      ALLOW_ERROR_VIEWS: ${ALLOW_ERROR_VIEWS:-false}
+      DAL_ENDPOINT: ${DAL_ENDPOINT:-http://fcp-dal-api:3005/graphql}
+      DAL_TOKEN_ENDPOINT: https://login.microsoftonline.com/${DAL_TENANT_ID}/oauth2/v2.0/token
+      DAL_CONNECTION: ${DAL_CONNECTION:-false}
+      DAL_CLIENT_ID: ${DAL_CLIENT_ID}
+      DAL_CLIENT_SECRET: ${DAL_CLIENT_SECRET}
+      DAL_TENANT_ID: ${DAL_TENANT_ID}
+      DEFRA_ID_WELL_KNOWN_URL: ${DEFRA_ID_WELL_KNOWN_URL}
+      DEFRA_ID_CLIENT_ID: ${DEFRA_ID_CLIENT_ID}
+      DEFRA_ID_CLIENT_SECRET: ${DEFRA_ID_CLIENT_SECRET}
+      DEFRA_ID_SERVICE_ID: ${DEFRA_ID_SERVICE_ID}
+      DEFRA_ID_POLICY: ${DEFRA_ID_POLICY}
+      DEFRA_ID_REDIRECT_URL: http://localhost:3000/auth/sign-in-oidc
+      DEFRA_ID_SIGN_OUT_REDIRECT_URL: http://localhost:3000/auth/sign-out-oidc
+      DAL_EMAIL_HEADER: ${DAL_EMAIL_HEADER}
+      OS_PLACES_CLIENT_ID: ${OS_PLACES_CLIENT_ID}
+      OS_PLACES_STUB: ${OS_PLACES_STUB:-false}
+      PERSONAL_DETAILS_INTERRUPTER_ENABLED: ${PERSONAL_DETAILS_INTERRUPTER_ENABLED:-false}
+      BUSINESS_DETAILS_INTERRUPTER_ENABLED: ${BUSINESS_DETAILS_INTERRUPTER_ENABLED:-false}
+      CPH_ENABLED: ${CPH_ENABLED:-false}
     healthcheck:
       test: ['CMD', 'curl', 'localhost:3000/health']
       interval: 5s

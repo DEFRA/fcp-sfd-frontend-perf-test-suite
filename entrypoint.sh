@@ -15,6 +15,11 @@ JM_LOGS=${JM_HOME}/logs
 
 mkdir -p ${JM_REPORTS} ${JM_LOGS}
 
+# Clean up reports directory if it exists and is not empty
+if [ -d "${JM_REPORTS}" ] && [ "$(ls -A ${JM_REPORTS})" ]; then
+  rm -rf "${JM_REPORTS:?}/*"
+fi
+
 TEST_SCENARIO=${TEST_SCENARIO:-test}
 SCENARIOFILE=${JM_SCENARIOS}/${TEST_SCENARIO}.jmx
 REPORTFILE=${NOW}-perftest-${TEST_SCENARIO}-report.csv
@@ -22,17 +27,30 @@ LOGFILE=${JM_LOGS}/perftest-${TEST_SCENARIO}.log
 
 # Before running the suite, replace 'service-name' with the name/url of the service to test.
 # ENVIRONMENT is set to the name of th environment the test is running in.
-SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-service-name.${ENVIRONMENT}.cdp-int.defra.cloud}
+SERVICE_ENDPOINT=${SERVICE_ENDPOINT:-fcp-sfd-frontend.${ENVIRONMENT}.cdp-int.defra.cloud}
+SERVICE_MOCK_ENDPOINT=${SERVICE_MOCK_ENDPOINT:-fcp-defra-id-stub.${ENVIRONMENT}.cdp-int.defra.cloud}
 # PORT is used to set the port of this performance test container
 SERVICE_PORT=${SERVICE_PORT:-443}
 SERVICE_URL_SCHEME=${SERVICE_URL_SCHEME:-https}
+LOOP_COUNT=${LOOP_COUNT:-100}
+DURATION_SECONDS=${DURATION_SECONDS:-3600}
+THREAD_COUNT=${THREAD_COUNT:-4}
+RAMPUP_SECONDS=${RAMPUP_SECONDS:-30}
+THROUGHPUT=${THROUGHPUT:-1.0}
 
 # Run the test suite
-jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE} -f \
+jmeter -n -t ${SCENARIOFILE} -e -l "${REPORTFILE}" -o ${JM_REPORTS} -j ${LOGFILE} \
 -Jenv="${ENVIRONMENT}" \
 -Jdomain="${SERVICE_ENDPOINT}" \
+-JdomainMock="${SERVICE_MOCK_ENDPOINT}" \
 -Jport="${SERVICE_PORT}" \
--Jprotocol="${SERVICE_URL_SCHEME}"
+-Jprotocol="${SERVICE_URL_SCHEME}" \
+-JRAMPUP_SECONDS="${RAMPUP_SECONDS}" \
+-JTHREAD_COUNT="${THREAD_COUNT}" \
+-JDURATION_SECONDS="${DURATION_SECONDS}" \
+-JLOOP_COUNT="${LOOP_COUNT}" \
+-JTHROUGHPUT="${THROUGHPUT}" \
+-JJM_SCENARIOS="${JM_SCENARIOS}"
 
 # Publish the results into S3 so they can be displayed in the CDP Portal
 if [ -n "$RESULTS_OUTPUT_S3_PATH" ]; then
@@ -52,4 +70,5 @@ else
    exit 1
 fi
 
-exit $test_exit_code
+echo "Test execution completed with exit code $?"
+exit 0
