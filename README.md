@@ -15,6 +15,12 @@ A successful build results in a Docker container that is capable of running your
 The performance test suites are designed to be run from the CDP Portal.
 The CDP Platform runs test suites in much the same way it runs any other service, it takes a docker image and runs it as an ECS task, automatically provisioning infrastructure as required.
 
+## Test data
+
+`scenarios/data/UserList.csv` supplies the `CRN` variable to the test plan. It must contain synthetic CRNs only. Never commit real customer CRNs, or any other real customer data, to this repository. This repository is public.
+
+The list is regenerated from the DAL mock performance data. It currently holds the `CRN` header line and nothing else, so no thread can sign in. Do not schedule performance runs until the list has been regenerated.
+
 ## Local Testing with Docker Compose
 
 You can run the entire performance test stack locally using Docker Compose, including LocalStack, Redis, and the target service. This is useful for development, integration testing, or verifying your test scripts **before committing to `main`**, which will trigger GitHub Actions to build and publish the Docker image.
