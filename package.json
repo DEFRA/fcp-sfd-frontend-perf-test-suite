@@ -1,0 +1,14 @@
+{
+  "name": "fcp-sfd-frontend-perf-test-suite",
+  "private": true,
+  "description": "Tooling for this repository's pre-commit hook only.",
+  "license": "OGL-UK-3.0",
+  "scripts": {
+    "check:synthetic-ids": "sfd-id-check --staged",
+    "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module"
+  },
+  "devDependencies": {
+    "fcp-sfd-core": "github:DEFRA/fcp-sfd-core#95f58ade56b2d0dd0f15bdcba6a5f37a54bcc939",
+    "husky": "9.1.7"
+  }
+}
